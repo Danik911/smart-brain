@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import ImageLinkForm from "./components/image_link_form/ImageLinkForm";
 import ParticlesBg from 'particles-bg'
 import Clarifai from 'clarifai'
+import FaceRecognition from "./components/face_recognition/FaceRecognition";
 
 let config = {
   num: [4, 7],
@@ -30,7 +31,7 @@ let config = {
 };
 
 const app = new Clarifai.App({
-  apiKey: "4e43ec72bd1847a5b87b794cd30782a0"
+  apiKey: "ac6a09a60bb94413a71460117bd72825"
 })
 
 class App extends Component {
@@ -52,6 +53,34 @@ class App extends Component {
 
   onSubmitClicked = () => {
    this.setState({ imageUrl: this.state.input })
+
+   app.models
+   .predict(
+     {
+       id: 'face-detection',
+       name: 'face-detection',
+       version: '6dc7e46bc9124c5c8824be4822abe105',
+       type: 'visual-detector',
+     }, this.state.input)
+   .then(response => {
+     console.log('hi', response)
+    //  if (response) {
+    //    fetch('http://localhost:3000/image', {
+    //      method: 'put',
+    //      headers: {'Content-Type': 'application/json'},
+    //      body: JSON.stringify({
+    //        id: this.state.user.id
+    //      })
+    //    })
+    //      .then(response => response.json())
+    //      .then(count => {
+    //        this.setState(Object.assign(this.state.user, { entries: count}))
+    //      })
+
+    //  }
+    //  this.displayFaceBox(this.calculateFaceLocation(response))
+   })
+   .catch(err => console.log(err));
   }
 
   render() {
@@ -65,6 +94,7 @@ class App extends Component {
           onSubmitClicked={this.onSubmitClicked}
           onInputChange={this.onInputChange}
         />
+           <FaceRecognition imageUrl={imageUrl} />
       </div>
     );
   }
