@@ -31,7 +31,7 @@ let config = {
 };
 
 const app = new Clarifai.App({
-  apiKey: "ac6a09a60bb94413a71460117bd72825"
+  apiKey: API_KEY
 })
 
 class App extends Component {
