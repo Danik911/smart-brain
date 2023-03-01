@@ -51,50 +51,69 @@ class App extends Component {
     this.setState({ input: event.target.value })
   }
 
+  
+
   onSubmitClicked = () => {
-   this.setState({ imageUrl: this.state.input })
+    this.setState({ imageUrl: this.state.input })
 
-   app.models
-   .predict(
-     {
-       id: 'face-detection',
-       name: 'face-detection',
-       version: '6dc7e46bc9124c5c8824be4822abe105',
-       type: 'visual-detector',
-     }, this.state.input)
-   .then(response => {
-     console.log('hi', response)
-    //  if (response) {
-    //    fetch('http://localhost:3000/image', {
-    //      method: 'put',
-    //      headers: {'Content-Type': 'application/json'},
-    //      body: JSON.stringify({
-    //        id: this.state.user.id
-    //      })
-    //    })
-    //      .then(response => response.json())
-    //      .then(count => {
-    //        this.setState(Object.assign(this.state.user, { entries: count}))
-    //      })
+    app.models
+      .predict(
+        {
+          id: 'face-detection',
+          name: 'face-detection',
+          version: '6dc7e46bc9124c5c8824be4822abe105',
+          type: 'visual-detector',
+        }, this.state.input)
+      .then(response => {
+        console.log('hi', response)
+        // if (response) {
+        //   fetch('http://localhost:3000/image', {
+        //     method: 'put',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify({
+        //       id: this.state.user.id
+        //     })
+        //   })
+        //     .then(response => response.json())
+        //     .then(count => {
+        //       this.setState(Object.assign(this.state.user, { entries: count }))
+        //     })
 
-    //  }
-    //  this.displayFaceBox(this.calculateFaceLocation(response))
-   })
-   .catch(err => console.log(err));
+        // }
+        this.displayFaceBox(this.calculateFaceLocation(response))
+      })
+      .catch(err => console.log(err));
+  }
+
+  displayFaceBox = (box) => {
+    this.setState({box: box})
+  }
+
+  calculateFaceLocation = (data) => {
+    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box
+    const image = document.getElementById('input_image')
+    const width = Number(image.width)
+    const height = Number(image.height)
+    return {
+      leftCol: clarifaiFace.left_col * width,
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - (clarifaiFace.right_col * width),
+      bottomRow: height - (clarifaiFace.bottom_row * height)
+    }
   }
 
   render() {
-    const {isSignedIn, imageUrl, route, box} = this.state
+    const { isSignedIn, imageUrl, route, box } = this.state
     return (
-        <div className="App">
-       <ParticlesBg type="cobweb" config={config} bg={true} />
+      <div className="App">
+        <ParticlesBg type="cobweb" config={config} bg={true} />
         <Navigation />
         <Logo />
         <ImageLinkForm
           onSubmitClicked={this.onSubmitClicked}
           onInputChange={this.onInputChange}
         />
-           <FaceRecognition imageUrl={imageUrl} />
+        <FaceRecognition box={box} imageUrl={imageUrl} />
       </div>
     );
   }
